@@ -1,0 +1,8 @@
+# Dot-source this file to activate the currently selected VT-Alt source build.
+
+get9_vt_alt_selection=$home/lib/get9/active/vt-alt.rc
+if(test -r $get9_vt_alt_selection)
+	. $get9_vt_alt_selection
+if not
+	echo get9: no VT-Alt source build has been selected >[1=2]
+get9_vt_alt_selection=()

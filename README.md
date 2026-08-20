@@ -33,12 +33,14 @@ $home/lib/get9/
         ca-certificates.rc
         go.rc
         let-go.rc
+        vt-alt.rc
     cache/
     distfiles/
     pkg/
         ca-certificates/
         go/
         let-go/
+        vt-alt/
     tmp/
 ```
 
@@ -152,6 +154,43 @@ lg -e '(+ 1 1)'
 . ports/let-go/main/source/amd64/deactivate.rc
 ```
 
+## VT-Alt from the latest main branch
+
+The VT-Alt source recipe clones the current `main` branch and builds the
+`vt-alt` command with the standard Plan 9 `mk` toolchain:
+
+```rc
+ports/vt-alt/main/source/amd64/install.rc
+```
+
+This port does not replace the stock `vt` command. Each source build is
+installed under its full upstream commit ID:
+
+```text
+$home/lib/get9/pkg/vt-alt/<commit>/
+    bin/vt-alt
+    source-commit
+    source-url
+```
+
+The build depends only on the standard Plan 9 development tools. The recipe
+does not run upstream's system-wide `mk install`; it stages the amd64 build
+output as `vt-alt` in the user-local package directory and activates it with a
+bind into `/bin`.
+
+Running the recipe later checks the then-current `main` commit. An existing
+commit is reused; a new commit is built and installed beside older builds. The
+newly resolved commit becomes the persistent selection.
+
+Temporarily activate or deactivate the selected VT-Alt build in one current
+namespace:
+
+```rc
+. ports/vt-alt/main/source/amd64/activate.rc
+vt-alt -m lg main.lg
+. ports/vt-alt/main/source/amd64/deactivate.rc
+```
+
 ## Persistent activation
 
 Reconnect with Drawterm after installation. The new connection reads the user
@@ -161,6 +200,7 @@ windows it creates:
 ```rc
 go version
 lg -e '(+ 1 1)'
+vt-alt -m lg main.lg
 ```
 
 For convenience, all selected packages can be activated in one current window:
@@ -181,7 +221,8 @@ is the reliable activation boundary.
 - Dependencies are checked by recipes and reported with actionable commands;
   there is no automatic dependency solver yet.
 - Supported recipes currently cover CA certificates 2026-08-13, the official
-  Go 1.27.0 Plan 9/amd64 archive, and LetGo `main` source builds on amd64.
+  Go 1.27.0 Plan 9/amd64 archive, LetGo `main` source builds on amd64, and
+  VT-Alt `main` source builds on amd64.
 - There is no automated uninstall command yet. Removal requires deactivating a
   package, removing its persistent selection, and removing its versioned package
   directory. The shared profile hook may remain for other Get9 packages.

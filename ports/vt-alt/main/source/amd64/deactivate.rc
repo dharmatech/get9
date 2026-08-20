@@ -1,0 +1,17 @@
+# Dot-source this file to remove the selected VT-Alt binding from /bin.
+
+if(~ $#get9_vt_alt_active_bin 0) {
+	echo get9: no get9-managed VT-Alt build is active
+}
+if not {
+	get9_vt_alt_old_bin=$get9_vt_alt_active_bin
+	if(unmount $get9_vt_alt_old_bin /bin) {
+		get9_vt_alt_active_root=()
+		get9_vt_alt_active_bin=()
+		echo get9: deactivated VT-Alt from $get9_vt_alt_old_bin
+	}
+	if not {
+		echo get9: could not remove $get9_vt_alt_old_bin from /bin >[1=2]
+	}
+	get9_vt_alt_old_bin=()
+}
