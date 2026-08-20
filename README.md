@@ -7,6 +7,10 @@ upstream binary archive, a source build, or a Plan 9-specific layout.
 The repository is the initial interface. There is no package database,
 dependency solver, or `get9` front-end yet.
 
+## Guides
+
+- [From Linux to Legmacs on 9front](docs/from-zero-to-legmacs.md)
+
 ## Get the ports tree
 
 This copy-and-paste command clones get9 without changing the current shell's
