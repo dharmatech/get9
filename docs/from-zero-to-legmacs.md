@@ -106,7 +106,7 @@ commands.
 Open a second Linux terminal and run:
 
 ```sh
-ip=127.0.0.40; PASS=p9qemu-demo drawterm -h 'tcp!'"$ip"'!17019' -a 'tcp!'"$ip"'!17567' -u glenda -c 'rio'
+ip=127.0.0.40; PASS=p9qemu-demo drawterm -h $ip -a $ip -u glenda -c 'rio'
 ```
 
 The ready image intentionally uses the public demonstration password
@@ -146,7 +146,7 @@ Get9 records the exact commit selected for each installation.
 Open another Drawterm connection from Linux by running the same command again:
 
 ```sh
-ip=127.0.0.40; PASS=p9qemu-demo drawterm -h 'tcp!'"$ip"'!17019' -a 'tcp!'"$ip"'!17567' -u glenda -c 'rio'
+ip=127.0.0.40; PASS=p9qemu-demo drawterm -h $ip -a $ip -u glenda -c 'rio'
 ```
 
 The new connection reads the profile written by Get9 before Rio starts. In its
