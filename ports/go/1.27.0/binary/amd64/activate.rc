@@ -1,0 +1,41 @@
+# Dot-source this file. Namespace changes made by a child rc do not propagate
+# back to its parent.
+
+if(~ $#get9_root 0)
+	get9_root=$home/lib/get9
+
+get9_go_candidate_root=$get9_root/pkg/go/1.27.0
+get9_go_candidate_bin=$get9_go_candidate_root/bin
+get9_go_can_activate=yes
+
+if(! test -x $get9_go_candidate_bin/go) {
+	echo get9: Go 1.27.0 is not installed at $get9_go_candidate_root >[1=2]
+	get9_go_can_activate=no
+}
+
+if(~ $get9_go_can_activate yes) {
+	if(~ $#get9_go_active_bin 0)
+		get9_go_saved_goroot=$GOROOT
+	if not {
+		if(! unmount $get9_go_active_bin /bin) {
+			echo get9: could not remove previous Go binding from /bin >[1=2]
+			get9_go_can_activate=no
+		}
+	}
+}
+
+if(~ $get9_go_can_activate yes) {
+	if(bind -b $get9_go_candidate_bin /bin) {
+		get9_go_active_root=$get9_go_candidate_root
+		get9_go_active_bin=$get9_go_candidate_bin
+		GOROOT=$get9_go_active_root
+		echo get9: activated Go 1.27.0 from $GOROOT
+	}
+	if not {
+		echo get9: could not bind $get9_go_candidate_bin before /bin >[1=2]
+	}
+}
+
+get9_go_candidate_root=()
+get9_go_candidate_bin=()
+get9_go_can_activate=()
