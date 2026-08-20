@@ -7,39 +7,45 @@ upstream binary archive, a source build, or a Plan 9-specific layout.
 The repository is the initial interface. There is no package database,
 dependency solver, or `get9` front-end yet.
 
-## First port: Go 1.27.0
+## Get the ports tree
 
-The first recipe installs the official Go 1.27.0 Plan 9/amd64 binary archive:
+This copy-and-paste command clones get9 without changing the current shell's
+working directory:
 
 ```rc
-cd get9
-ports/go/1.27.0/binary/amd64/install.rc
+@{mkdir -p $home/src && cd $home/src && webfs && git/clone https://github.com/dharmatech/get9.git}
 ```
 
-By default, it creates this user-local layout:
+Recipes can then be run from the repository root:
+
+```rc
+cd $home/src/get9
+```
+
+## Installation model
+
+By default, recipes use this user-local layout:
 
 ```text
 $home/lib/get9/
     profile
     active/
+        ca-certificates.rc
         go.rc
+        let-go.rc
+    cache/
     distfiles/
-        go1.27.0.plan9-amd64.tar.gz
     pkg/
+        ca-certificates/
         go/
-            1.27.0/
-                bin/
-                src/
-                ...
+        let-go/
     tmp/
 ```
 
-The archive is pinned to its official SHA-256 checksum. A cached archive is
-verified every time it is used. The installer refuses to overwrite an existing
-incomplete installation.
-
-Installation also selects Go 1.27.0 for future sessions. Get9 adds one
-idempotent hook at the beginning of `$home/lib/profile`, before Rio can start:
+Installations are versioned under `pkg`. Selected packages contribute small
+activation files under `active`; the generated `profile` sources them. Get9
+adds one idempotent hook at the beginning of `$home/lib/profile`, before Rio
+can start:
 
 ```rc
 # get9: profile hook
@@ -49,71 +55,133 @@ if(test -r $home/lib/get9/profile)
 ```
 
 The first time it changes an existing user profile, Get9 preserves the original
-as `$home/lib/profile.pre-get9`. Package selections remain in Get9-owned files;
-installing another package does not add another block to the user profile.
+as `$home/lib/profile.pre-get9`. Installing another package does not add another
+block to the user profile.
 
-Set `get9_root` before running the recipe to choose another installation root:
+Set `get9_root` before running a recipe to choose another package, cache, and
+temporary-file root. Get9's small activation and profile files remain under
+`$home/lib/get9`:
 
 ```rc
 get9_root=$home/opt/get9
 ports/go/1.27.0/binary/amd64/install.rc
 ```
 
-## Start using Go
+## CA certificates 2026-08-13
+
+The CA certificates port installs curl's dated Mozilla CA bundle for Go's
+`crypto/x509` package:
+
+```rc
+ports/ca-certificates/2026-08-13/user/install.rc
+```
+
+The bundle is installed user-locally and selected through `SSL_CERT_FILE`; this
+recipe does not overwrite the machine-wide `/sys/lib/tls/ca.pem`. The dated
+download is pinned to its published SHA-256 checksum, and a cached copy is
+verified every time it is used.
+
+Temporarily activate or deactivate this bundle in one current `rc` process:
+
+```rc
+. ports/ca-certificates/2026-08-13/user/activate.rc
+. ports/ca-certificates/2026-08-13/user/deactivate.rc
+```
+
+## Go 1.27.0
+
+The Go recipe installs the official Go 1.27.0 Plan 9/amd64 binary archive:
+
+```rc
+ports/go/1.27.0/binary/amd64/install.rc
+```
+
+The archive is pinned to its official SHA-256 checksum. A cached archive is
+verified every time it is used. The installer refuses to overwrite an existing
+incomplete installation.
+
+Temporarily activate or deactivate Go in one current `rc` namespace:
+
+```rc
+. ports/go/1.27.0/binary/amd64/activate.rc
+go version
+. ports/go/1.27.0/binary/amd64/deactivate.rc
+```
+
+Activation sets `GOROOT` and binds that version's `bin` directory before
+`/bin`. It does not copy files into the system `/bin` directory.
+
+## LetGo from the latest main branch
+
+The LetGo source recipe clones the current `main` branch, resolves its exact
+commit, and builds `lg` with Go:
+
+```rc
+ports/let-go/main/source/amd64/install.rc
+```
+
+Its build prerequisites are:
+
+- Go 1.26 or newer; and
+- a readable CA certificate bundle for Go module downloads.
+
+The recipe checks both prerequisites and reports the recipe needed when one is
+missing. It sources the managed Get9 profile inside its own installer namespace,
+so Go and CA certificates installed earlier in the same shell can be used
+without reconnecting first.
+
+Each source build is installed under its full upstream commit ID:
+
+```text
+$home/lib/get9/pkg/let-go/<commit>/
+    bin/lg
+    source-commit
+    source-url
+```
+
+Running the recipe later checks the then-current `main` commit. An existing
+commit is reused; a new commit is built and installed beside older builds. The
+newly resolved commit becomes the persistent selection.
+
+Temporarily activate or deactivate the selected LetGo build in one current
+namespace:
+
+```rc
+. ports/let-go/main/source/amd64/activate.rc
+lg -e '(+ 1 1)'
+. ports/let-go/main/source/amd64/deactivate.rc
+```
+
+## Persistent activation
 
 Reconnect with Drawterm after installation. The new connection reads the user
-profile before Rio starts, so Go is available to Rio and the windows it creates:
+profile before Rio starts, so selected packages are available to Rio and the
+windows it creates:
 
 ```rc
 go version
-gofmt -h
+lg -e '(+ 1 1)'
 ```
 
-For convenience, the managed profile can be dot-sourced in one current window:
+For convenience, all selected packages can be activated in one current window:
 
 ```rc
 . $home/lib/get9/profile
 ```
 
 That does not update an already-running Rio's original namespace. Ordinary new
-windows created by that Rio may therefore retain the old view; reconnecting
-with Drawterm is the reliable activation boundary.
-
-## Current-window activation and deactivation
-
-The recipe also provides scripts for temporarily changing one current `rc`
-namespace:
-
-```rc
-. ./ports/go/1.27.0/binary/amd64/activate.rc
-go version
-```
-
-It sets `GOROOT` and binds that version's `bin` directory before `/bin`. The
-binding is visible to the current namespace group and processes created from
-it; it does not copy files into the system `/bin` directory.
-
-Undo the get9-managed Go binding with:
-
-```rc
-. ./ports/go/1.27.0/binary/amd64/deactivate.rc
-```
-
-These two scripts do not change the persistent selection under
-`$home/lib/get9/active`.
-
-Later versions can use the same layout. Dot-sourcing another version's
-activation script will remove the previous get9-managed Go binding before
-binding the selected version.
+windows created by that Rio may retain the old view; reconnecting with Drawterm
+is the reliable activation boundary.
 
 ## Current boundaries
 
-- Recipes are ordinary, inspectable `rc` scripts.
+- Recipes are ordinary, directly executable, inspectable `rc` scripts.
 - Installations are user-local and versioned unless a recipe explicitly says
   otherwise.
-- Installation selects the installed Go version persistently; a new Drawterm
-  connection is the supported activation boundary.
-- This prototype supports only the official Go 1.27.0 Plan 9/amd64 archive.
-- There is no automated uninstall command yet. Removing this version also
-  requires removing its persistent `active/go.rc` selection; the shared profile
-  hook may remain for other Get9 packages.
+- Dependencies are checked by recipes and reported with actionable commands;
+  there is no automatic dependency solver yet.
+- Supported recipes currently cover CA certificates 2026-08-13, the official
+  Go 1.27.0 Plan 9/amd64 archive, and LetGo `main` source builds on amd64.
+- There is no automated uninstall command yet. Removal requires deactivating a
+  package, removing its persistent selection, and removing its versioned package
+  directory. The shared profile hook may remain for other Get9 packages.

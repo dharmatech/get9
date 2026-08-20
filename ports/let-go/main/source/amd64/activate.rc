@@ -1,0 +1,8 @@
+# Dot-source this file to activate the currently selected LetGo source build.
+
+get9_letgo_selection=$home/lib/get9/active/let-go.rc
+if(test -r $get9_letgo_selection)
+	. $get9_letgo_selection
+if not
+	echo get9: no LetGo source build has been selected >[1=2]
+get9_letgo_selection=()

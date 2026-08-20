@@ -1,0 +1,23 @@
+# Dot-source this file to select this CA bundle in the current rc process.
+
+if(~ $#get9_root 0)
+	get9_root=$home/lib/get9
+
+get9_ca_candidate_file=$get9_root/pkg/ca-certificates/2026-08-13/ca.pem
+get9_ca_can_activate=yes
+
+if(! test -r $get9_ca_candidate_file) {
+	echo get9: CA certificates 2026-08-13 are not installed at $get9_ca_candidate_file >[1=2]
+	get9_ca_can_activate=no
+}
+
+if(~ $get9_ca_can_activate yes) {
+	if(~ $#get9_ca_active_file 0)
+		get9_ca_saved_ssl_cert_file=$SSL_CERT_FILE
+	SSL_CERT_FILE=$get9_ca_candidate_file
+	get9_ca_active_file=$get9_ca_candidate_file
+	echo get9: activated CA certificates 2026-08-13 from $SSL_CERT_FILE
+}
+
+get9_ca_candidate_file=()
+get9_ca_can_activate=()

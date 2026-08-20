@@ -1,0 +1,13 @@
+# Dot-source this file to restore the previous SSL_CERT_FILE value.
+
+if(~ $#get9_ca_active_file 0) {
+	echo get9: no get9-managed CA certificate bundle is active
+}
+if not {
+	get9_ca_old_file=$get9_ca_active_file
+	SSL_CERT_FILE=$get9_ca_saved_ssl_cert_file
+	get9_ca_active_file=()
+	get9_ca_saved_ssl_cert_file=()
+	echo get9: deactivated CA certificates from $get9_ca_old_file
+	get9_ca_old_file=()
+}
