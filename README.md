@@ -32,6 +32,7 @@ $home/lib/get9/
     active/
         ca-certificates.rc
         go.rc
+        legmacs.rc
         let-go.rc
         vt-alt.rc
     cache/
@@ -39,6 +40,7 @@ $home/lib/get9/
     pkg/
         ca-certificates/
         go/
+        legmacs/
         let-go/
         vt-alt/
     tmp/
@@ -191,6 +193,71 @@ vt-alt -m lg main.lg
 . ports/vt-alt/main/source/amd64/deactivate.rc
 ```
 
+## Legmacs from the latest main branch
+
+The Legmacs source recipe clones the current `main` branch, validates that all
+of its namespaces compile with the active LetGo runtime, and installs its
+source together with a temporary Get9-provided Plan 9 launcher:
+
+```rc
+ports/legmacs/main/source/amd64/install.rc
+```
+
+Its required runtime dependencies are:
+
+- the `lg` command from the LetGo source port; and
+- the `vt-alt` command from the VT-Alt source port.
+
+The recipe checks both dependencies and reports the recipe needed when one is
+missing. It sources the managed Get9 profile inside its own installer namespace,
+so LetGo and VT-Alt installed earlier in the same shell can be used without
+reconnecting first.
+
+Each source installation is stored under its full upstream commit ID:
+
+```text
+$home/lib/get9/pkg/legmacs/<commit>/
+    bin/legmacs
+    src/
+        main.lg
+        legmacs/
+        ...
+    source-commit
+    source-url
+```
+
+The generated `legmacs` command preserves the caller's working directory and
+file arguments, makes the installed source and `$home/.config/legmacs`
+available through `LG_SOURCE_PATHS`, and starts the editor with the Plan 9
+terminal configuration selected for this port:
+
+```rc
+vt-alt -bmdx -F bfc3cc lg $legmacs_root/main.lg $*
+```
+
+Set `LEGMACS_CONFIG_DIR` to use a configuration directory other than
+`$home/.config/legmacs`. The generated launcher is an adapter owned by Get9;
+it can be replaced by an upstream Plan 9 launcher later without changing the
+public `legmacs` command.
+
+Upstream Legmacs currently implements `M-!` by invoking POSIX `sh`. That one
+command is not yet available on Plan 9; the editor and its other commands run
+without it. This belongs in future upstream Plan 9 support rather than a
+Get9-specific source patch.
+
+Running the recipe later checks the then-current `main` commit. An existing
+commit is reused; a new commit is tested and installed beside older versions.
+The newly resolved commit becomes the persistent selection.
+
+Temporarily activate or deactivate the selected Legmacs installation in one
+current namespace:
+
+```rc
+. ports/legmacs/main/source/amd64/activate.rc
+legmacs file.lg
+. ports/legmacs/main/source/amd64/deactivate.rc
+```
+
 ## Persistent activation
 
 Reconnect with Drawterm after installation. The new connection reads the user
@@ -201,6 +268,7 @@ windows it creates:
 go version
 lg -e '(+ 1 1)'
 vt-alt -m lg main.lg
+legmacs file.lg
 ```
 
 For convenience, all selected packages can be activated in one current window:
@@ -221,8 +289,9 @@ is the reliable activation boundary.
 - Dependencies are checked by recipes and reported with actionable commands;
   there is no automatic dependency solver yet.
 - Supported recipes currently cover CA certificates 2026-08-13, the official
-  Go 1.27.0 Plan 9/amd64 archive, LetGo `main` source builds on amd64, and
-  VT-Alt `main` source builds on amd64.
+  Go 1.27.0 Plan 9/amd64 archive, LetGo `main` source builds on amd64, VT-Alt
+  `main` source builds on amd64, and Legmacs `main` source installations on
+  amd64.
 - There is no automated uninstall command yet. Removal requires deactivating a
   package, removing its persistent selection, and removing its versioned package
   directory. The shared profile hook may remain for other Get9 packages.

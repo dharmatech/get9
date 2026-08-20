@@ -1,0 +1,8 @@
+# Dot-source this file to activate the currently selected Legmacs installation.
+
+get9_legmacs_selection=$home/lib/get9/active/legmacs.rc
+if(test -r $get9_legmacs_selection)
+	. $get9_legmacs_selection
+if not
+	echo get9: no Legmacs source installation has been selected >[1=2]
+get9_legmacs_selection=()

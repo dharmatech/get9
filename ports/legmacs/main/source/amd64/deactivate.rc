@@ -1,0 +1,17 @@
+# Dot-source this file to remove the selected Legmacs binding from /bin.
+
+if(~ $#get9_legmacs_active_bin 0) {
+	echo get9: no get9-managed Legmacs installation is active
+}
+if not {
+	get9_legmacs_old_bin=$get9_legmacs_active_bin
+	if(unmount $get9_legmacs_old_bin /bin) {
+		get9_legmacs_active_root=()
+		get9_legmacs_active_bin=()
+		echo get9: deactivated Legmacs from $get9_legmacs_old_bin
+	}
+	if not {
+		echo get9: could not remove $get9_legmacs_old_bin from /bin >[1=2]
+	}
+	get9_legmacs_old_bin=()
+}
