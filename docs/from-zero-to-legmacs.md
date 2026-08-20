@@ -58,20 +58,34 @@ command -v p9qemu
 command -v drawterm
 ```
 
-## 2. Create the 9front VM
+## 2. Create the 9front baseline and working VM
 
-Still on Linux, create a VM from P9QEMU's stable, Drawterm-ready 9front image:
+Still on Linux, create an untouched baseline from P9QEMU's stable,
+Drawterm-ready 9front image, then copy it to the working `dev` instance:
 
 ```sh
 mkdir -p "$HOME/vm/legmacs"
 cd "$HOME/vm/legmacs"
 p9qemu image create \
     https://github.com/dharmatech/p9qemu/releases/download/ready-9front-11554-amd64-hjfs-gmt-drawterm-001/image.json \
-    dev
+    checkpoint-000
+cp -a --sparse=always checkpoint-000 dev
 ```
 
-The image is downloaded and verified, then `dev` is created as a small writable
-VM instance. This command is run only once for this instance.
+The image is downloaded and verified, and both directories remain small
+writable overlays backed by P9QEMU's immutable cached image. Treat
+`checkpoint-000` as frozen: never start it or modify it. Start only `dev`.
+
+To return to the original state or begin another experiment later, copy the
+checkpoint to another new working directory and start that copy:
+
+```sh
+cd "$HOME/vm/legmacs"
+cp -a --sparse=always checkpoint-000 experiment-001
+```
+
+Never copy an instance while it is running. Shut down its guest with `fshalt`
+and wait for QEMU to exit first.
 
 ## 3. Start 9front
 
