@@ -116,7 +116,7 @@ and wait for QEMU to exit first.
 Start the VM on an unused loopback address:
 
 ```sh
-cd "$HOME/vm/legmacs"
+cd ~/vm/legmacs
 p9qemu start --instance dev --host-forward-address 127.0.0.40
 ```
 
