@@ -67,14 +67,13 @@ Build and install the Wayland version of
 [Drawterm](https://github.com/dharmatech/drawterm):
 
 ```sh
-mkdir -p "$HOME/src"
-git clone https://github.com/dharmatech/drawterm.git "$HOME/src/drawterm"
-(
-    cd "$HOME/src/drawterm"
-    make CONF=linux clean
-    make CONF=linux
-    make CONF=linux install
-)
+mkdir -p ~/src
+cd ~/src
+git clone https://github.com/dharmatech/drawterm.git
+cd drawterm
+make CONF=linux clean
+make CONF=linux
+make CONF=linux install
 ```
 
 Confirm that Drawterm is available:
