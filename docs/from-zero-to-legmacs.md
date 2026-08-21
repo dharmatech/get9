@@ -8,7 +8,7 @@ The host setup below targets a recent Ubuntu system with a Wayland desktop.
 The Plan 9 and Get9 steps are the same on other Linux distributions, but their
 host package names may differ.
 
-## 1. Install the Linux host tools
+## 1. Install the Linux prerequisites
 
 In a Linux terminal, install QEMU and the packages needed to build Drawterm:
 
@@ -19,6 +19,8 @@ sudo apt install \
     qemu-system-x86 qemu-utils \
     libdecor-0-dev libpipewire-0.3-dev libwayland-dev libxkbcommon-dev
 ```
+
+## 2. Install uv
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
@@ -35,6 +37,8 @@ verify that uv is available:
 ```sh
 uv --version
 ```
+
+## 3. Install P9QEMU and Drawterm
 
 Install [P9QEMU](https://github.com/dharmatech/p9qemu):
 
@@ -63,7 +67,7 @@ command -v p9qemu
 command -v drawterm
 ```
 
-## 2. Create the 9front baseline and working VM
+## 4. Create the 9front baseline and working VM
 
 Still on Linux, create an untouched baseline from P9QEMU's stable,
 Drawterm-ready 9front image, then copy it to the working `dev` instance:
@@ -92,7 +96,7 @@ cp -a --sparse=always checkpoint-000 experiment-001
 Never copy an instance while it is running. Shut down its guest with `fshalt`
 and wait for QEMU to exit first.
 
-## 3. Start 9front
+## 5. Start 9front
 
 Start the VM on an unused loopback address:
 
@@ -106,7 +110,7 @@ boots without requiring input. If `127.0.0.40` is already in use, choose
 another address in `127.0.0.0/8` and use it in both the P9QEMU and Drawterm
 commands.
 
-## 4. Connect with Drawterm
+## 6. Connect with Drawterm
 
 Open a second Linux terminal and run:
 
@@ -121,7 +125,7 @@ expose this VM to another machine without changing the password first.
 Do not add Drawterm's `-m` option. Get9's Legmacs launcher enables VT-Alt's own
 Alt-as-Meta mode, which needs the original left-Alt events from Drawterm.
 
-## 5. Install Get9 and Legmacs
+## 7. Install Get9 and Legmacs
 
 The remaining commands run inside the Plan 9 terminal in Drawterm.
 
@@ -146,7 +150,7 @@ Go is installed from its official Plan 9 binary archive. LetGo, VT-Alt, and
 Legmacs are built or installed from their current upstream `main` branches;
 Get9 records the exact commit selected for each installation.
 
-## 6. Reconnect and start Legmacs
+## 8. Reconnect and start Legmacs
 
 Open another Drawterm connection from Linux by running the same command again:
 
@@ -173,7 +177,7 @@ Legmacs uses left Alt for Meta commands through VT-Alt. Upstream Legmacs
 currently implements `M-!` by invoking POSIX `sh`, so that one command is not
 available on Plan 9 yet.
 
-## 7. Shut down and return later
+## 9. Shut down and return later
 
 Shut down cleanly from a Plan 9 terminal:
 
