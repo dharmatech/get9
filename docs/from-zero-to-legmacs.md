@@ -8,19 +8,14 @@ The host setup below targets a recent Ubuntu system with a Wayland desktop.
 The Plan 9 and Get9 steps are the same on other Linux distributions, but their
 host package names may differ.
 
-## 1. Install the Linux prerequisites
+## 1. Install uv
 
-In a Linux terminal, install QEMU and the packages needed to build Drawterm:
+In a Linux terminal, install the packages needed to download uv:
 
 ```sh
 sudo apt update
-sudo apt install \
-    build-essential ca-certificates curl git pkg-config \
-    qemu-system-x86 qemu-utils \
-    libdecor-0-dev libpipewire-0.3-dev libwayland-dev libxkbcommon-dev
+sudo apt install ca-certificates curl
 ```
-
-## 2. Install uv
 
 Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
@@ -38,12 +33,34 @@ verify that uv is available:
 uv --version
 ```
 
-## 3. Install P9QEMU and Drawterm
+## 2. Install P9QEMU
+
+Install Git and QEMU:
+
+```sh
+sudo apt install git qemu-system-x86 qemu-utils
+```
 
 Install [P9QEMU](https://github.com/dharmatech/p9qemu):
 
 ```sh
 uv tool install git+https://github.com/dharmatech/p9qemu.git
+```
+
+Confirm that P9QEMU is available:
+
+```sh
+command -v p9qemu
+```
+
+## 3. Install Drawterm
+
+Install Git and the packages needed to build the Wayland version of Drawterm:
+
+```sh
+sudo apt install \
+    build-essential git pkg-config \
+    libdecor-0-dev libpipewire-0.3-dev libwayland-dev libxkbcommon-dev
 ```
 
 Build and install the Wayland version of
@@ -60,10 +77,9 @@ git clone https://github.com/dharmatech/drawterm.git "$HOME/src/drawterm"
 )
 ```
 
-Confirm that both commands are available:
+Confirm that Drawterm is available:
 
 ```sh
-command -v p9qemu
 command -v drawterm
 ```
 
