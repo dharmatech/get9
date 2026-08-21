@@ -20,16 +20,21 @@ sudo apt install \
     libdecor-0-dev libpipewire-0.3-dev libwayland-dev libxkbcommon-dev
 ```
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/) and make
-its user-local command directory available to this shell:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/):
 
 ```sh
 curl -LsSf https://astral.sh/uv/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
 ```
 
-The first command uses uv's official installer. To inspect it before running
+The command uses uv's official installer. To inspect it before running
 it, use `curl -LsSf https://astral.sh/uv/install.sh | less`.
+
+Close this terminal and open a new one before continuing. In the new terminal,
+verify that uv is available:
+
+```sh
+uv --version
+```
 
 Install [P9QEMU](https://github.com/dharmatech/p9qemu):
 
