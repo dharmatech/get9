@@ -88,8 +88,8 @@ Still on Linux, create an untouched baseline from P9QEMU's stable,
 Drawterm-ready 9front image, then copy it to the working `dev` instance:
 
 ```sh
-mkdir -p "$HOME/vm/legmacs"
-cd "$HOME/vm/legmacs"
+mkdir -p ~/vm/legmacs
+cd ~/vm/legmacs
 p9qemu image create \
     https://github.com/dharmatech/p9qemu/releases/download/ready-9front-11554-amd64-hjfs-gmt-drawterm-001/image.json \
     checkpoint-000
@@ -104,7 +104,7 @@ To return to the original state or begin another experiment later, copy the
 checkpoint to another new working directory and start that copy:
 
 ```sh
-cd "$HOME/vm/legmacs"
+cd ~/vm/legmacs
 cp -a --sparse=always checkpoint-000 experiment-001
 ```
 
